@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
+import userRoute from "./routes/userRoute.js"
 
 dotenv.config();
 
@@ -26,6 +27,9 @@ const corsOptions = {
   origin: "http://localhost:5173",
   credentials: true,
 };
+
+// Routes and API
+app.use('/api/v1/user',userRoute);
 
 app.listen(PORT, () => {
   connectDB();

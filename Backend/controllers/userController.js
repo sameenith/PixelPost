@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cloudinary from "../utils/cloudinary.js";
+import getDataUri from "../utils/datauri.js";
 
 export const register = async (req, res) => {
   try {
@@ -114,6 +115,31 @@ export const logout = (_, res) => {
   }
 };
 
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    let user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      user,
+      success: true,
+    });
+  } catch (error) {
+    console.log("Error in getProfile: ", error);
+    return res.status(500).json({
+      message: "An error occurred on the server.",
+      success: false,
+    });
+  }
+};
+
 export const editProfile = async (req, res) => {
   try {
     const userId = req.userId;
@@ -126,7 +152,7 @@ export const editProfile = async (req, res) => {
       cloudResponse = await cloudinary.uploader.upload(fileUri);
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).json({
         message: "user not found",
@@ -184,7 +210,7 @@ export const getSuggestedUsers = async (req, res) => {
 export const followOrUnfollow = async (req, res) => {
   try {
     const loggedInUserId = req.userId; // follow karne vala
-    const targetUserId = req.params._id; // jiskoFollowKrenge
+    const targetUserId = req.params.id; // jiskoFollowKrenge
 
     if (loggedInUserId === targetUserId) {
       return res.status(400).json({
