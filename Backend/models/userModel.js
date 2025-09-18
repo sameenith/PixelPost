@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Post from "../models/postModel.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -11,7 +12,7 @@ const userSchema = new mongoose.Schema(
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
-    bookmark: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   },
   { timestamps: true }
 );

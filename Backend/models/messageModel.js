@@ -1,4 +1,5 @@
 import mongoose, { model, Schema } from "mongoose";
+import User from "./userModel.js";
 
 const messageSchema = new Schema(
   {
