@@ -1,29 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { toast } from "sonner";
+import axios from "axios";
 
 const AuthPage = () => {
-  // State to toggle between Login and Signup views
+  const [input, setInput] = useState({
+    userName: "",
+    email: "",
+    password: "",
+  });
   const [isLoginView, setIsLoginView] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // A simple handler to toggle the view
+  const changeEventHandler = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  // State to toggle between Login and Signup views
   const toggleView = () => {
     setIsLoginView(!isLoginView);
+    setInput({ userName: "", email: "", password: "" });
   };
 
   // Placeholder function for form submission
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
-    // Here, you would gather the form data
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    
-    if (isLoginView) {
-      console.log("Submitting Login Data:", data);
-      // TODO: Call your login API endpoint
-      // Example: fetch('/api/v1/user/login', { method: 'POST', body: JSON.stringify(data), ... });
-    } else {
-      console.log("Submitting Signup Data:", data);
-      // TODO: Call your register API endpoint
-      // Example: fetch('/api/v1/user/register', { method: 'POST', body: JSON.stringify(data), ... });
+
+    let res;
+
+    try {
+      if (isLoginView) {
+        console.log("Submitting Login Data:", input);
+        res = await axios.post(
+          "/api/v1/user/login",
+          { email: input.email, password: input.password },
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true, // This is crucial for cookies to be sent and received
+          }
+        );
+      } else {
+        console.log("Submitting Signup Data:", input);
+        res = await axios.post("/api/v1/user/register", input, {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        });
+      }
+      if (res.data.success) {
+        toast.success(res.data.message);
+
+        if (!isLoginView) {
+          toggleView(); // Switch to login view after successful registration
+        } else {
+          setInput({ email: "", password: "" });
+        }
+      }
+    } catch (error) {
+      console.log("Error in handleFormSubmit: ", error);
+      toast.error(error.response.data.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,10 +68,12 @@ const AuthPage = () => {
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
         <div>
           <h2 className="text-3xl font-extrabold text-center text-gray-900">
-            {isLoginView ? 'Welcome Back!' : 'Create Your Account'}
+            {isLoginView ? "Welcome Back!" : "Create Your Account"}
           </h2>
           <p className="mt-2 text-sm text-center text-gray-600">
-            {isLoginView ? 'Please sign in to your account' : 'Get started by creating a new account'}
+            {isLoginView
+              ? "Please sign in to your account"
+              : "Get started by creating a new account"}
           </p>
         </div>
 
@@ -43,8 +81,8 @@ const AuthPage = () => {
           {/* --- USERNAME INPUT (Only for Signup) --- */}
           {!isLoginView && (
             <div>
-              <label 
-                htmlFor="userName" 
+              <label
+                htmlFor="userName"
                 className="block text-sm font-medium text-gray-700"
               >
                 Username
@@ -54,6 +92,8 @@ const AuthPage = () => {
                   id="userName"
                   name="userName"
                   type="text"
+                  value={input.userName}
+                  onChange={changeEventHandler}
                   required
                   className="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Your username"
@@ -64,8 +104,8 @@ const AuthPage = () => {
 
           {/* --- EMAIL INPUT --- */}
           <div>
-            <label 
-              htmlFor="email" 
+            <label
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
               Email address
@@ -75,6 +115,8 @@ const AuthPage = () => {
                 id="email"
                 name="email"
                 type="email"
+                value={input.email}
+                onChange={changeEventHandler}
                 autoComplete="email"
                 required
                 className="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -85,8 +127,8 @@ const AuthPage = () => {
 
           {/* --- PASSWORD INPUT --- */}
           <div>
-            <label 
-              htmlFor="password" 
+            <label
+              htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
               Password
@@ -96,6 +138,8 @@ const AuthPage = () => {
                 id="password"
                 name="password"
                 type="password"
+                value={input.password}
+                onChange={changeEventHandler}
                 autoComplete="current-password"
                 required
                 className="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -110,18 +154,20 @@ const AuthPage = () => {
               type="submit"
               className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              {isLoginView ? 'Sign In' : 'Sign Up'}
+              {loading ? "Processing..." : isLoginView ? "Sign In" : "Sign Up"}
             </button>
           </div>
         </form>
 
         {/* --- TOGGLE LINK --- */}
         <div className="text-sm text-center">
-          <button 
-            onClick={toggleView} 
+          <button
+            onClick={toggleView}
             className="font-medium text-blue-600 hover:text-blue-500"
           >
-            {isLoginView ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
+            {isLoginView
+              ? "Need an account? Sign Up"
+              : "Already have an account? Sign In"}
           </button>
         </div>
       </div>
