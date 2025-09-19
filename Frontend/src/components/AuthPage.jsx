@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+// A small, self-contained Spinner component
+const Spinner = () => (
+  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-75">
+    <div className="w-10 h-10 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+  </div>
+);
 
 const AuthPage = () => {
   const [input, setInput] = useState({
@@ -10,6 +18,7 @@ const AuthPage = () => {
   });
   const [isLoginView, setIsLoginView] = useState(true);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -39,6 +48,7 @@ const AuthPage = () => {
             withCredentials: true, // This is crucial for cookies to be sent and received
           }
         );
+        
       } else {
         console.log("Submitting Signup Data:", input);
         res = await axios.post("/api/v1/user/register", input, {
@@ -52,6 +62,7 @@ const AuthPage = () => {
         if (!isLoginView) {
           toggleView(); // Switch to login view after successful registration
         } else {
+          navigate("/"); 
           setInput({ email: "", password: "" });
         }
       }
@@ -66,6 +77,7 @@ const AuthPage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+        {loading && <Spinner />}
         <div>
           <h2 className="text-3xl font-extrabold text-center text-gray-900">
             {isLoginView ? "Welcome Back!" : "Create Your Account"}
