@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setAuthUser } from "@/redux/authSlice";
 
 // A small, self-contained Spinner component
 const Spinner = () => (
@@ -19,6 +21,7 @@ const AuthPage = () => {
   const [isLoginView, setIsLoginView] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -48,7 +51,6 @@ const AuthPage = () => {
             withCredentials: true, // This is crucial for cookies to be sent and received
           }
         );
-        
       } else {
         console.log("Submitting Signup Data:", input);
         res = await axios.post("/api/v1/user/register", input, {
@@ -62,7 +64,8 @@ const AuthPage = () => {
         if (!isLoginView) {
           toggleView(); // Switch to login view after successful registration
         } else {
-          navigate("/"); 
+          dispatch(setAuthUser(res.data.user));
+          navigate("/");
           setInput({ email: "", password: "" });
         }
       }

@@ -53,7 +53,6 @@ const LeftSideBar = () => {
       });
       if (res.data.success) {
         dispatch(setAuthUser(null));
-        localStorage.removeItem("user");
         navigate("/login");
         toast.success(res.data.message);
       }
