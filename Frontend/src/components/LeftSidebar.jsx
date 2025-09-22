@@ -11,6 +11,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthUser } from "@/redux/authSlice";
 
 // This function takes a name and returns the initials.
 const getInitials = (name) => {
@@ -39,6 +41,8 @@ const NavLink = ({ icon: Icon, text, to }) => {
 
 const LeftSideBar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((store) => store.auth);
 
   // Placeholder for logout functionality
   const handleLogout = async () => {
@@ -48,17 +52,14 @@ const LeftSideBar = () => {
         withCredentials: true,
       });
       if (res.data.success) {
+        dispatch(setAuthUser(null));
+        localStorage.removeItem("user");
         navigate("/login");
         toast.success(res.data.message);
       }
     } catch (error) {
       toast.error(error.response.data.message);
     }
-  };
-
-  const user = {
-    userName: "Alex Doe",
-    profilePicture: null,
   };
 
   return (
@@ -85,29 +86,30 @@ const LeftSideBar = () => {
             to="/notifications"
           ></NavLink>
           <NavLink icon={SquarePlus} text="Create" to="/create"></NavLink>
-
-          <Link
-            to="/profile"
-            className="flex items-center p-3 my-1 text-lg font-medium space-x-4 text-gray-700  hover:bg-gray-100 rounded-lg transition-colors duration-200"
-          >
-            {user.profilePicture ? (
-              <img
-                src={user.profilePicture}
-                alt="User Avatar"
-                className="w-7 h-7 rounded-full object-cover"
-              />
-            ) : (
-              // Otherwise, show the dynamically generated initials image
-              <img
-                src={`https://placehold.co/100x100/EFEFEFF/3EA6FF?text=${getInitials(
-                  user.userName
-                )}`}
-                alt="User Initials"
-                className="w-7 h-7 rounded-full object-cover"
-              />
-            )}
-            <span>Profile</span>
-          </Link>
+          {user && (
+            <Link
+              to="/profile"
+              className="flex items-center p-3 my-1 text-lg font-medium space-x-4 text-gray-700  hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt="User Avatar"
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              ) : (
+                // Otherwise, show the dynamically generated initials image
+                <img
+                  src={`https://placehold.co/100x100/EFEFEFF/3EA6FF?text=${getInitials(
+                    user.userName
+                  )}`}
+                  alt="User Initials"
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              )}
+              <span>Profile</span>
+            </Link>
+          )}
         </nav>
 
         {/* Logout Button */}
