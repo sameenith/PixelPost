@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Home,
   Search,
@@ -13,6 +13,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
+import CreatePost from "./CreatePost";
 
 // This function takes a name and returns the initials.
 const getInitials = (name) => {
@@ -43,6 +44,7 @@ const LeftSideBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store.auth);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // Placeholder for logout functionality
   const handleLogout = async () => {
@@ -84,7 +86,18 @@ const LeftSideBar = () => {
             text="Notifications"
             to="/notifications"
           ></NavLink>
-          <NavLink icon={SquarePlus} text="Create" to="/create"></NavLink>
+
+          {/* create Post feature */}
+          <button
+            onClick={() => {
+              setIsCreateOpen(true);
+            }}
+            className="flex items-center w-full p-3 my-1 text-lg font-medium text-left space-x-4 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+          >
+            <SquarePlus className="w-7 h-7" strokeWidth={1.5} />
+            <span>Create</span>
+          </button>
+
           {user && (
             <Link
               to="/profile"
@@ -122,6 +135,8 @@ const LeftSideBar = () => {
           </button>
         </div>
       </div>
+
+      <CreatePost open={isCreateOpen} setOpen={setIsCreateOpen} />
     </>
   );
 };
