@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
+import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
 // This function takes a name and returns the initials.
 const getInitials = (name) => {
@@ -55,6 +56,8 @@ const LeftSideBar = () => {
       });
       if (res.data.success) {
         dispatch(setAuthUser(null));
+        dispatch(setSelectedPost(null));
+        dispatch(setPosts([]));
         navigate("/login");
         toast.success(res.data.message);
       }
@@ -103,9 +106,9 @@ const LeftSideBar = () => {
               to="/profile"
               className="flex items-center p-3 my-1 text-lg font-medium space-x-4 text-gray-700  hover:bg-gray-100 rounded-lg transition-colors duration-200"
             >
-              {user.profilePicture ? (
+              {user?.profilePicture ? (
                 <img
-                  src={user.profilePicture}
+                  src={user?.profilePicture}
                   alt="User Avatar"
                   className="w-7 h-7 rounded-full object-cover"
                 />
@@ -113,7 +116,7 @@ const LeftSideBar = () => {
                 // Otherwise, show the dynamically generated initials image
                 <img
                   src={`https://placehold.co/100x100/EFEFEFF/3EA6FF?text=${getInitials(
-                    user.userName
+                    user?.userName
                   )}`}
                   alt="User Initials"
                   className="w-7 h-7 rounded-full object-cover"

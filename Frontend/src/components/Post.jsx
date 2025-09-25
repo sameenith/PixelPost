@@ -9,7 +9,8 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
-import { setPosts } from "@/redux/postSlice";
+import { useEffect } from "react";
+import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
 const getInitials = (name = "") => {
   const parts = name.trim().split(" ").filter(Boolean);
@@ -30,6 +31,10 @@ export default function Post({ post }) {
     post?.likes.includes(user?._id) || false
   );
   const [postLike, setPostLike] = useState(post.likes.length);
+   useEffect(()=>{
+      setComment(post?.comments)
+  
+    },[post])
 
   const likeOrDislikeHandler = async () => {
     try {
@@ -76,7 +81,7 @@ export default function Post({ post }) {
       setText("");
     }
   };
- 
+
   const commentHandler = async (e) => {
     e.preventDefault;
     try {
@@ -134,30 +139,6 @@ export default function Post({ post }) {
     }
   };
 
-  // //function to handle the form submission
-  // const handleCommentSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!text.trim()) return;
-
-  //   try {
-  //     // This is where you would send the comment to your backend API
-  //     const res = await axios.post(
-  //       `/api/v1/comment/add/${post._id}`,
-  //       { text },
-  //       { withCredentials: true }
-  //     );
-
-  //     if (res.data.success) {
-  //       toast.success("Comment posted!");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Failed to post comment.");
-  //   } finally {
-  //     setText(""); // Clear the input field
-  //   }
-  // };
-
   return (
     <div className="my-8 w-full max-w-sm mx-auto">
       {/* Post Header */}
@@ -168,8 +149,7 @@ export default function Post({ post }) {
             to={`/profile/${post.author._id}`}
             className="flex items-center gap-2"
           >
-            <Avatar>
-              {/* You can replace this src with a dynamic one from props */}
+            <Avatar>             
               <AvatarImage src={post.author?.profilePicture} alt="post_image" />
               <AvatarFallback>
                 {getInitials(post.author.userName)}
@@ -235,7 +215,10 @@ export default function Post({ post }) {
             />
           )}
           <MessageCircle
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              dispatch(setSelectedPost(post));
+              setOpen(true);
+            }}
             className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95"
           />
           <Send className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95" />
@@ -255,7 +238,10 @@ export default function Post({ post }) {
           {post.caption}
         </p>
         <span
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            // dispatch(setSelectedPost(post));
+            setOpen(true);
+          }}
           className="text-gray-500 cursor-pointer"
         >
           view all {comment.length} comments

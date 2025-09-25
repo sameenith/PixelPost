@@ -9,10 +9,31 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Comment from "./Comment";
+import axios from "axios";
+import { setPosts } from "@/redux/postSlice";
+import { toast } from "sonner";
+
+const getInitials = (name = "") => {
+  const parts = name.trim().split(" ").filter(Boolean);
+  if (parts.length === 0) return "?";
+  const firstInitial = parts[0][0];
+  const lastInitial = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return `${firstInitial}${lastInitial}`.toUpperCase();
+};
 
 export default function CommentDialog({ open, setOpen }) {
   const [text, setText] = useState("");
+  const { selectedPost, posts } = useSelector((store) => store.posts);
+  const [comment, setComment] = useState(selectedPost?.comments);
+  useEffect(()=>{
+    setComment(selectedPost?.comments)
+
+  },[selectedPost])
+  const dispatch = useDispatch();
+
   const commentHandler = (e) => {
     const inputText = e.target.value;
     if (inputText.trim()) {
@@ -22,8 +43,42 @@ export default function CommentDialog({ open, setOpen }) {
     }
   };
 
-  const sendMessageHandler = () => {
-    alert(text);
+  const sendMessageHandler = async (e) => {
+    e.preventDefault;
+    try {
+      const res = await axios.post(
+        `/api/v1/post/${selectedPost._id}/comment`,
+        { text },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      if (res.data.success) {
+        setText("");
+        console.log(res.data);
+        const updatedPostComment = [res.data.comment,...comment];
+        setComment(updatedPostComment);
+
+        const updatedPost = posts.map((p) =>
+          p._id === selectedPost._id
+            ? {
+                ...p,
+                comments: updatedPostComment,
+              }
+            : p
+        );
+        dispatch(setPosts(updatedPost));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+      const errorMessage =
+        error.response?.data?.message || "Could not add comment.";
+      toast.error(errorMessage);
+    } 
   };
 
   return (
@@ -31,11 +86,9 @@ export default function CommentDialog({ open, setOpen }) {
       <DialogContent className="max-w-4xl grid grid-cols-2 p-0 gap-0">
         {/* Left Side: Image */}
         <div className="rounded-md w-full h-full bg-gray-100 p-1">
-          {" "}
-          {/* Added a bg color */}
           <img
             className="w-full h-full object-cover rounded-md"
-            src="https://images.unsplash.com/photo-1600298882438-de4298571be4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            src={selectedPost?.image}
             alt="post_img"
           />
         </div>
@@ -46,10 +99,14 @@ export default function CommentDialog({ open, setOpen }) {
             {/* User Info Link */}
             <Link to="/profile/username" className="flex items-center gap-3">
               <Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarImage src={selectedPost?.author?.profilePicture} />
+                <AvatarFallback>
+                  {getInitials(selectedPost?.author?.userName)}
+                </AvatarFallback>
               </Avatar>
-              <DialogTitle className="font-semibold">username</DialogTitle>{" "}
+              <DialogTitle className="font-semibold">
+                {selectedPost?.author?.userName}
+              </DialogTitle>{" "}
             </Link>
 
             <Dialog>
@@ -75,15 +132,12 @@ export default function CommentDialog({ open, setOpen }) {
 
           {/* Comments Area */}
           <div className="flex-1 p-4 overflow-y-auto max-h-72">
-            {" "}
-            <p>Comments will go here...</p>
-            {/* Example comments to fill space */}
-            {[...Array(10)].map((_, i) => (
-              <p key={i} className="mb-2 text-sm">
-                <span className="font-semibold mr-1">user_{i + 1}</span>
-                This is a test comment number {i + 1}. Very insightful!
-              </p>
-            ))}
+           
+            {comment?.length > 0 &&
+              comment.map((comment, idx) => (
+                
+                <Comment key={comment._id} comment={comment} />
+              ))}
           </div>
 
           {/* Comment input area */}
