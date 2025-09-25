@@ -28,10 +28,9 @@ export default function CommentDialog({ open, setOpen }) {
   const [text, setText] = useState("");
   const { selectedPost, posts } = useSelector((store) => store.posts);
   const [comment, setComment] = useState(selectedPost?.comments);
-  useEffect(()=>{
-    setComment(selectedPost?.comments)
-
-  },[selectedPost])
+  useEffect(() => {
+    setComment(selectedPost?.comments);
+  }, [selectedPost]);
   const dispatch = useDispatch();
 
   const commentHandler = (e) => {
@@ -59,7 +58,7 @@ export default function CommentDialog({ open, setOpen }) {
       if (res.data.success) {
         setText("");
         console.log(res.data);
-        const updatedPostComment = [res.data.comment,...comment];
+        const updatedPostComment = [res.data.comment, ...comment];
         setComment(updatedPostComment);
 
         const updatedPost = posts.map((p) =>
@@ -78,7 +77,7 @@ export default function CommentDialog({ open, setOpen }) {
       const errorMessage =
         error.response?.data?.message || "Could not add comment.";
       toast.error(errorMessage);
-    } 
+    }
   };
 
   return (
@@ -132,10 +131,8 @@ export default function CommentDialog({ open, setOpen }) {
 
           {/* Comments Area */}
           <div className="flex-1 p-4 overflow-y-auto max-h-72">
-           
             {comment?.length > 0 &&
               comment.map((comment, idx) => (
-                
                 <Comment key={comment._id} comment={comment} />
               ))}
           </div>

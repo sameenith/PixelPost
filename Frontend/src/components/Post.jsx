@@ -96,7 +96,8 @@ export default function Post({ post }) {
         }
       );
       if (res.data.success) {
-        const updatedPostComment = [...comment, res.data.comment];
+        setText("");
+        const updatedPostComment = [ res.data.comment,...comment];
         setComment(updatedPostComment);
 
         const updatedPost = posts.map((p) =>
