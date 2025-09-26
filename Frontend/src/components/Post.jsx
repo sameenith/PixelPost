@@ -11,6 +11,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import { Badge } from "./ui/badge";
 
 const getInitials = (name = "") => {
   const parts = name.trim().split(" ").filter(Boolean);
@@ -31,10 +32,9 @@ export default function Post({ post }) {
     post?.likes.includes(user?._id) || false
   );
   const [postLike, setPostLike] = useState(post.likes.length);
-   useEffect(()=>{
-      setComment(post?.comments)
-  
-    },[post])
+  useEffect(() => {
+    setComment(post?.comments);
+  }, [post]);
 
   const likeOrDislikeHandler = async () => {
     try {
@@ -97,7 +97,7 @@ export default function Post({ post }) {
       );
       if (res.data.success) {
         setText("");
-        const updatedPostComment = [ res.data.comment,...comment];
+        const updatedPostComment = [res.data.comment, ...comment];
         setComment(updatedPostComment);
 
         const updatedPost = posts.map((p) =>
@@ -148,15 +148,19 @@ export default function Post({ post }) {
         {post?.author && (
           <Link
             to={`/profile/${post.author._id}`}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
           >
-            <Avatar>             
+            <Avatar>
               <AvatarImage src={post.author?.profilePicture} alt="post_image" />
               <AvatarFallback>
                 {getInitials(post.author.userName)}
               </AvatarFallback>
             </Avatar>
             <h1 className="font-semibold">{post.author.userName}</h1>
+
+            {user?._id === post?.author?._id && (
+              <Badge variant="secondary">Author</Badge>
+            )}
           </Link>
         )}
 
@@ -238,15 +242,17 @@ export default function Post({ post }) {
           </Link>
           {post.caption}
         </p>
-        <span
-          onClick={() => {
-            // dispatch(setSelectedPost(post));
-            setOpen(true);
-          }}
-          className="text-gray-500 cursor-pointer"
-        >
-          view all {comment.length} comments
-        </span>
+        {comment.length > 0 && (
+          <span
+            onClick={() => {
+              dispatch(setSelectedPost(post));
+              setOpen(true);
+            }}
+            className="text-gray-500 cursor-pointer"
+          >
+            view all {comment.length} comments
+          </span>
+        )}
       </div>
       <CommentDialog open={open} setOpen={setOpen} />
 

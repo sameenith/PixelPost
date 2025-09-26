@@ -28,10 +28,11 @@ export default function CommentDialog({ open, setOpen }) {
   const [text, setText] = useState("");
   const { selectedPost, posts } = useSelector((store) => store.posts);
   const [comment, setComment] = useState(selectedPost?.comments);
-  useEffect(() => {
-    setComment(selectedPost?.comments);
-  }, [selectedPost]);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if(selectedPost)setComment(selectedPost?.comments);
+  }, [selectedPost]);
 
   const commentHandler = (e) => {
     const inputText = e.target.value;
