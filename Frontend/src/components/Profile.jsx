@@ -12,6 +12,8 @@ import {
   Tag,
   Badge,
   AtSign,
+  Heart,
+  MessageCircle,
 } from "lucide-react";
 
 // Helper function to get initials from a name
@@ -130,7 +132,7 @@ const ProfileHeader = ({ loggedInUser, userProfile }) => {
 const ProfileTabs = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { name: "POSTS", icon: Grid3x3 },
-    { name: "SAVED", icon: Bookmark },
+    { name: "BOOKMARKS", icon: Bookmark },
     { name: "REELS", icon: Clapperboard },
     { name: "TAGGED", icon: Tag },
   ];
@@ -164,25 +166,40 @@ const PostGrid = ({ posts }) => {
       </div>
     );
   }
+  console.log(posts[0].image);
   return (
     <div className="grid grid-cols-3 gap-1">
-      {posts.map((post) => (
-        <div
-          key={post._id}
-          className="relative group aspect-square bg-gray-200"
-        >
-          <img
-            src={post.image}
-            alt="Post"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-            <p className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="font-bold">{post.likes?.length || 0}</span> Likes
-            </p>
+      {posts
+        // .filter((post) => post && post._id)
+        .map((post) => (
+          <div
+            key={post._id}
+            className="relative group aspect-square bg-gray-200"
+          >
+            <img
+              src={post.image}
+              alt="Post"
+              className="w-full h-full object-cover "
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+              <div className="flex items-center gap-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="flex items-center gap-2">
+                  <Heart className="h-6 w-6" fill="white" />
+                  <span className="font-bold text-lg">
+                    {post.likes?.length || 0}
+                  </span>
+                </span>
+
+                <span className="flex items-center gap-2">
+                  <MessageCircle className="h-6 w-6" fill="white" />
+                  <span className="font-bold text-lg">
+                    {post.comments?.length || 0}
+                  </span>
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 };
@@ -204,6 +221,10 @@ function Profile() {
     );
   }
 
+  const displayedPost =
+    activeTab === "posts" ? userProfile?.posts : userProfile?.bookmarks;
+  console.log(displayedPost);
+
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-8">
       <div className="px-4 sm:px-10">
@@ -215,8 +236,7 @@ function Profile() {
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <div className="mt-4">
-        {activeTab === "posts" && <PostGrid posts={userProfile.posts} />}
-        {/* You can add content for other tabs here when they are active */}
+        <PostGrid posts={displayedPost} />
       </div>
     </div>
   );
