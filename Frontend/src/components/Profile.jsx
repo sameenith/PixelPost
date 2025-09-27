@@ -116,7 +116,7 @@ const ProfileHeader = ({ loggedInUser, userProfile }) => {
         </div>
         <div>
           {/* --------------------------------------------------- */}
-          <h2 className="font-semibold text-gray-800">
+          <h2 className="font-semibold  text-gray-800">
             {userProfile?.fullName}
           </h2>
           {/* --------------------------------------------------- */}

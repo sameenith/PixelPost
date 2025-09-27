@@ -141,7 +141,6 @@ const EditProfile = () => {
 
           {/* Form Fields Section */}
           <div className="space-y-4">
-
             {/* Full Name */}
             <div>
               <label className="text-sm font-semibold">Full Name</label>
