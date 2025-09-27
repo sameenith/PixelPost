@@ -51,7 +51,7 @@ const LeftSideBar = () => {
   const handleLogout = async () => {
     console.log("Logout clicked");
     try {
-      const res = await axios.get("api/v1/user/logout", {
+      const res = await axios.get("/api/v1/user/logout", {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -103,9 +103,9 @@ const LeftSideBar = () => {
 
           {user && (
             <Link
-              to="/profile"
+              to={`/profile/${user?._id}`}
               className="flex items-center p-3 my-1 text-lg font-medium space-x-4 text-gray-700  hover:bg-gray-100 rounded-lg transition-colors duration-200"
-            >
+            > 
               {user?.profilePicture ? (
                 <img
                   src={user?.profilePicture}
