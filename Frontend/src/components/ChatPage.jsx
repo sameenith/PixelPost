@@ -12,6 +12,7 @@ import { setMessages } from "@/redux/chatSlice";
 import { toast } from "sonner";
 import { setSelectedUser } from "@/redux/authSlice";
 import useGetAllMessages from "@/hooks/useGetAllMessages";
+import useGetRTM from "@/hooks/useGetRTM";
 // Helper function to get initials from a name
 const getInitials = (name = "") => {
   if (!name) return "?";
@@ -48,6 +49,7 @@ const ConversationWelcome = ({ user }) => {
 
 // Represents the main conversation view
 const ConversationView = ({ selectedUser, loggedInUser }) => {
+  useGetRTM();
   useGetAllMessages();
   const [textMessage, setTextMessage] = useState("");
   const { messages } = useSelector((store) => store.chat);

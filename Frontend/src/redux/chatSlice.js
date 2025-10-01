@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const chatSlice = createSlice({
   name: "chat",
   initialState: {
-    onlineUsers: null,
+    onlineUsers: [],
     messages: [],
   },
   reducers: {
@@ -14,8 +14,11 @@ const chatSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload;
     },
+    addMessage: (state, action) => {
+      state.messages.push(action.payload);
+    },
   },
 });
 
-export const { setOnlineUsers, setMessages } = chatSlice.actions;
+export const { setOnlineUsers, setMessages,addMessage } = chatSlice.actions;
 export default chatSlice.reducer;
