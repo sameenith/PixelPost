@@ -21,7 +21,7 @@ const useGetSuggestedUser = () => {
       }
     };
     fetchSuggestedUser();
-  }, []);
+  }, [dispatch]);
 };
 
 export default useGetSuggestedUser;

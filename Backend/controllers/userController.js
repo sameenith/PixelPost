@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/datauri.js";
 import Post from "../models/postModel.js";
+import path from "path";
 
 export const register = async (req, res) => {
   try {
@@ -131,8 +132,17 @@ export const logout = (_, res) => {
 export const getProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    let user = await User.findById(userId).select("-password");
-
+    let user = await User.findById(userId)
+      .select("-password")
+      .populate({
+        path: "posts",
+        options: {
+          sort: {
+            createdAt: -1,
+          },
+        },
+      })
+      .populate("bookmarks");
     if (!user) {
       return res.status(404).json({
         message: "User not found",
@@ -153,40 +163,88 @@ export const getProfile = async (req, res) => {
   }
 };
 
+// export const editProfile = async (req, res) => {
+//   try {
+//     const userId = req.userId;
+//     const { bio, gender } = req.body;
+//     const profilePicture = req.file;
+
+//     let cloudResponse;
+//     if (profilePicture) {
+//       const fileUri = getDataUri(profilePicture);
+//       cloudResponse = await cloudinary.uploader.upload(fileUri);
+//     }
+
+//     const user = await User.findById(userId).select("-password");
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "user not found",
+//         success: false,
+//       });
+//     }
+
+//     if (bio) user.bio = bio;
+//     if (gender) user.gender = gender;
+//     if (profilePicture) user.profilePicture = cloudResponse.secure_url;
+
+//     await user.save();
+//     return res.status(200).json({
+//       message: "user updated",
+//       user: user,
+//       success: true,
+//     });
+//   } catch (error) {
+//     console.log("Error in getting user profile ", error);
+//     return res.status(500).json({
+//       message: "An error occurred while fetching user profile.",
+//       success: false,
+//     });
+//   }
+// };
+
 export const editProfile = async (req, res) => {
   try {
     const userId = req.userId;
-    const { bio, gender } = req.body;
-    const profilePicture = req.file;
+    // Get all possible fields from the request
+    const { bio, gender, userName } = req.body;
+    const { fullName } = req.body;
+    const profilePictureFile = req.file;
 
-    let cloudResponse;
-    if (profilePicture) {
-      const fileUri = getDataUri(profilePicture);
-      cloudResponse = await cloudinary.uploader.upload(fileUri);
+    const updateData = {};
+    if (bio !== undefined) updateData.bio = bio;
+    if (gender !== undefined) updateData.gender = gender;
+    if (userName !== undefined) updateData.userName = userName;
+    if (fullName !== undefined) updateData.fullName = fullName;
+
+    // 2. Handle file upload separately
+    if (profilePictureFile) {
+      const fileUri = getDataUri(profilePictureFile);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri);
+      updateData.profilePicture = cloudResponse.secure_url;
     }
 
-    const user = await User.findById(userId).select("-password");
-    if (!user) {
+    // 3. Update the user and get the new document back in one step
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true, // This is the crucial part!
+    }).select("-password");
+
+    if (!updatedUser) {
       return res.status(404).json({
-        message: "user not found",
+        message: "User not found",
         success: false,
       });
     }
 
-    if (bio) user.bio = bio;
-    if (gender) user.gender = gender;
-    if (profilePicture) user.profilePicture = cloudResponse.secure_url;
-
-    await user.save();
+    // 4. Send the new, updated user object back to the frontend
     return res.status(200).json({
-      message: "user updated",
-
+      message: "Profile updated successfully.",
+      user: updatedUser, // This is now the correct, updated data
       success: true,
     });
   } catch (error) {
-    console.log("Error in getting user profile ", error);
+    console.log("Error in editProfile: ", error);
     return res.status(500).json({
-      message: "An error occurred while fetching user profile.",
+      message: "An error occurred while updating the profile.",
       success: false,
     });
   }
