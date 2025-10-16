@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { setSocket } from "./redux/socketSlice";
 import { setOnlineUsers } from "./redux/chatSlice";
 import { store } from "./redux/store";
+import { setLikeNotification } from "./redux/rtnSlice";
 const browserRouter = createBrowserRouter([
   {
     path: "/",
@@ -66,11 +67,15 @@ function App() {
         dispatch(setOnlineUsers(onlineUsers));
       });
 
+      socketio.on("notification", (notification) => {
+        dispatch(setLikeNotification(notification));
+      });
+
       return () => {
         socketio.close();
         dispatch(setSocket(null));
       };
-    } else if(socket) {
+    } else if (socket) {
       socket?.close();
       dispatch(setSocket(null));
     }

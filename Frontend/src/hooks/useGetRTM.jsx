@@ -1,36 +1,13 @@
-/*
-import { setMessages } from "@/redux/chatSlice";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
-const useGetRTM = () => {
-  const dispatch = useDispatch();
-  const { socket } = useSelector((store) => store.socketio);
-  const { messages } = useSelector((store) => store.chat);
-
-  useEffect(() => {
-    socket?.on("newMessages", (newMessages) => {
-      console.log("realtime is working or not");
-      dispatch(setMessages([...(messages || []), newMessages]));
-    });
-
-    return () => {
-      socket?.off("newMessages");
-    };
-  }, [messages, setMessages]);
-};
-
-export default useGetRTM;
-*/
 
 import { useEffect } from "react";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { addMessage } from "../redux/chatSlice.js";
+import { setLikeNotification } from "@/redux/rtnSlice.js";
 
 const useGetRTM = () => {
   const dispatch = useDispatch();
   const { socket } = useSelector((store) => store.socketio);
- 
 
   useEffect(() => {
     if (socket) {
@@ -40,12 +17,17 @@ const useGetRTM = () => {
 
       socket.on("newMessage", handleNewMessage);
 
+      const handleNotification = (notification) => {
+        dispatch(setLikeNotification(notification));
+      };
+      socket.on("notification", handleNotification);
+
       return () => {
         socket.off("newMessage", handleNewMessage);
+        socket.off("notification", handleNotification);
       };
     }
-  }, [socket, dispatch]); 
+  }, [socket, dispatch]);
 };
 
 export default useGetRTM;
-

@@ -203,7 +203,9 @@ export const dislikePost = async (req, res) => {
       };
 
       const postOwnerSocketId = getReceiverSocketId(postOwnerId);
-      io.to(postOwnerSocketId).emit("notification", notification);
+      if (postOwnerSocketId) {
+        io.to(postOwnerSocketId).emit("notification", notification);
+      }
     }
 
     return res.status(200).json({
