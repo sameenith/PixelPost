@@ -140,6 +140,22 @@ export default function Post({ post }) {
     }
   };
 
+  const bookmarkHandler = async () => {
+    try {
+      const res = await axios.get(`/api/v1/post/${post?._id}/bookmark`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.error("Failed to bookMark post:", error);
+      const errorMessage =
+        error.response?.data?.message || "Could not bookMark post.";
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <div className="my-8 w-full max-w-sm mx-auto">
       {/* Post Header */}
@@ -171,12 +187,15 @@ export default function Post({ post }) {
             <MoreHorizontal className="cursor-pointer" />
           </DialogTrigger>
           <DialogContent className="flex flex-col items-center text-sm text-center w-fit">
-            <Button
-              variant="ghost"
-              className="w-full cursor-pointer text-[#ED4956] font-bold "
-            >
-              Unfollow
-            </Button>
+            {user?._id !== post?.author._id && (
+              <Button
+                variant="ghost"
+                className="w-full cursor-pointer text-[#ED4956] font-bold "
+              >
+                Unfollow
+              </Button>
+            )}
+
             <Button variant="ghost" className="w-full cursor-pointer">
               Add to favorites
             </Button>
@@ -228,7 +247,10 @@ export default function Post({ post }) {
           />
           <Send className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95" />
         </div>
-        <Bookmark className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95" />
+        <Bookmark
+          onClick={bookmarkHandler}
+          className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95"
+        />
       </div>
 
       <div className="mt-2 space-y-1 text-sm">

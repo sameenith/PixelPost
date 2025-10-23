@@ -13,26 +13,47 @@ import { setSocket } from "./redux/socketSlice";
 import { setOnlineUsers } from "./redux/chatSlice";
 import { store } from "./redux/store";
 import { setLikeNotification } from "./redux/rtnSlice";
+import ProtectedRout from "./components/ProtectedRoutes";
 const browserRouter = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: (
+      <ProtectedRout>
+        <Layout />
+      </ProtectedRout>
+    ),
     children: [
       {
         index: true,
-        element: <Home />,
+        element: (
+          <ProtectedRout>
+            <Home />
+          </ProtectedRout>
+        ),
       },
       {
         path: "profile/:id",
-        element: <Profile />,
+        element: (
+          <ProtectedRout>
+            <Profile />
+          </ProtectedRout>
+        ),
       },
       {
         path: "profile/edit",
-        element: <EditProfile />,
+        element: (
+          <ProtectedRout>
+            <EditProfile />
+          </ProtectedRout>
+        ),
       },
       {
         path: "messages",
-        element: <Chat />,
+        element: (
+          <ProtectedRout>
+            <Chat />
+          </ProtectedRout>
+        ),
       },
     ],
   },

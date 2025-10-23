@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
 
 // A small, self-contained Spinner component
@@ -23,6 +23,8 @@ const AuthPage = () => {
   const [isHide, setIsHide] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { user } = useSelector((store) => store.auth);
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -77,6 +79,12 @@ const AuthPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
