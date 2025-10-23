@@ -8,10 +8,13 @@ import userRoute from "./routes/userRoute.js";
 import postRoute from "./routes/postRoute.js";
 import messageRoute from "./routes/messageRoute.js";
 import { app, server } from "./socket/socket.js";
+import path from "path";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 9000;
+const __dirname = path.resolve();
+console.log(__dirname);
 
 app.get("/", (_, res) => {
   res.status(200).json({
@@ -35,6 +38,11 @@ app.use(cors(corsOptions));
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
+
+app.use(express.static(path.join(__dirname,"/Frontend/dist")));
+app.get(/^\/(?!api).*/,(req,res)=>{
+  res.sendFile(path.resolve(__dirname,"Frontend","dist","index.html"));
+})
 
 server.listen(PORT, () => {
   connectDB();
