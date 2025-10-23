@@ -1,12 +1,15 @@
 import Conversation from "../models/conversationModel.js";
 import Message from "../models/messageModel.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
     const senderId = req.userId;
     const receiverId = req.params.id;
 
-    const { message } = req.body;
+    const { textMessage: message } = req.body;
+
+    console.log(message);
 
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
@@ -28,8 +31,13 @@ export const sendMessage = async (req, res) => {
     if (newMessage) conversation.messages.push(newMessage._id);
 
     await Promise.all([conversation.save(), newMessage.save()]);
+    console.log(newMessage);
 
     // implement real time socket io for data transfer
+    const receverSocketId = getReceiverSocketId(receiverId);
+    if (receverSocketId) {
+      io.to(receverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json({
       newMessage,
@@ -62,7 +70,7 @@ export const getMessage = async (req, res) => {
     }
 
     return res.status(200).json({
-      message: conversation?.messages,
+      messages: conversation?.messages,
       success: true,
     });
   } catch (error) {

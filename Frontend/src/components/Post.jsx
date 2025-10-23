@@ -11,6 +11,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import { Badge } from "./ui/badge";
 
 const getInitials = (name = "") => {
   const parts = name.trim().split(" ").filter(Boolean);
@@ -31,10 +32,9 @@ export default function Post({ post }) {
     post?.likes.includes(user?._id) || false
   );
   const [postLike, setPostLike] = useState(post.likes.length);
-   useEffect(()=>{
-      setComment(post?.comments)
-  
-    },[post])
+  useEffect(() => {
+    setComment(post?.comments);
+  }, [post]);
 
   const likeOrDislikeHandler = async () => {
     try {
@@ -96,7 +96,8 @@ export default function Post({ post }) {
         }
       );
       if (res.data.success) {
-        const updatedPostComment = [...comment, res.data.comment];
+        setText("");
+        const updatedPostComment = [res.data.comment, ...comment];
         setComment(updatedPostComment);
 
         const updatedPost = posts.map((p) =>
@@ -139,6 +140,22 @@ export default function Post({ post }) {
     }
   };
 
+  const bookmarkHandler = async () => {
+    try {
+      const res = await axios.get(`/api/v1/post/${post?._id}/bookmark`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.error("Failed to bookMark post:", error);
+      const errorMessage =
+        error.response?.data?.message || "Could not bookMark post.";
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <div className="my-8 w-full max-w-sm mx-auto">
       {/* Post Header */}
@@ -147,15 +164,19 @@ export default function Post({ post }) {
         {post?.author && (
           <Link
             to={`/profile/${post.author._id}`}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
           >
-            <Avatar>             
+            <Avatar>
               <AvatarImage src={post.author?.profilePicture} alt="post_image" />
               <AvatarFallback>
                 {getInitials(post.author.userName)}
               </AvatarFallback>
             </Avatar>
             <h1 className="font-semibold">{post.author.userName}</h1>
+
+            {user?._id === post?.author?._id && (
+              <Badge variant="secondary">Author</Badge>
+            )}
           </Link>
         )}
 
@@ -166,12 +187,15 @@ export default function Post({ post }) {
             <MoreHorizontal className="cursor-pointer" />
           </DialogTrigger>
           <DialogContent className="flex flex-col items-center text-sm text-center w-fit">
-            <Button
-              variant="ghost"
-              className="w-full cursor-pointer text-[#ED4956] font-bold "
-            >
-              Unfollow
-            </Button>
+            {user?._id !== post?.author._id && (
+              <Button
+                variant="ghost"
+                className="w-full cursor-pointer text-[#ED4956] font-bold "
+              >
+                Unfollow
+              </Button>
+            )}
+
             <Button variant="ghost" className="w-full cursor-pointer">
               Add to favorites
             </Button>
@@ -223,7 +247,10 @@ export default function Post({ post }) {
           />
           <Send className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95" />
         </div>
-        <Bookmark className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95" />
+        <Bookmark
+          onClick={bookmarkHandler}
+          className="h-6 w-6 cursor-pointer transition-transform duration-200 ease-out hover:scale-110 active:scale-95"
+        />
       </div>
 
       <div className="mt-2 space-y-1 text-sm">
@@ -237,15 +264,17 @@ export default function Post({ post }) {
           </Link>
           {post.caption}
         </p>
-        <span
-          onClick={() => {
-            // dispatch(setSelectedPost(post));
-            setOpen(true);
-          }}
-          className="text-gray-500 cursor-pointer"
-        >
-          view all {comment.length} comments
-        </span>
+        {comment.length > 0 && (
+          <span
+            onClick={() => {
+              dispatch(setSelectedPost(post));
+              setOpen(true);
+            }}
+            className="text-gray-500 cursor-pointer"
+          >
+            view all {comment.length} comments
+          </span>
+        )}
       </div>
       <CommentDialog open={open} setOpen={setOpen} />
 

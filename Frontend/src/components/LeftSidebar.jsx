@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import NotificationPopover from "./Notification";
 
 // This function takes a name and returns the initials.
 const getInitials = (name) => {
@@ -47,11 +48,12 @@ const LeftSideBar = () => {
   const { user } = useSelector((store) => store.auth);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
+
   // Placeholder for logout functionality
   const handleLogout = async () => {
     console.log("Logout clicked");
     try {
-      const res = await axios.get("api/v1/user/logout", {
+      const res = await axios.get("/api/v1/user/logout", {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -84,11 +86,14 @@ const LeftSideBar = () => {
             text="Messages"
             to="/messages"
           ></NavLink>
-          <NavLink
+
+          {/* <NavLink
             icon={Heart}
             text="Notifications"
             to="/notifications"
-          ></NavLink>
+          ></NavLink> */}
+
+          <NotificationPopover />
 
           {/* create Post feature */}
           <button
@@ -103,7 +108,7 @@ const LeftSideBar = () => {
 
           {user && (
             <Link
-              to="/profile"
+              to={`/profile/${user?._id}`}
               className="flex items-center p-3 my-1 text-lg font-medium space-x-4 text-gray-700  hover:bg-gray-100 rounded-lg transition-colors duration-200"
             >
               {user?.profilePicture ? (

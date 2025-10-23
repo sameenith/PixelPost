@@ -9,8 +9,7 @@ function Layout() {
         <LeftSideBar />
       </div>
 
-      {/* 2. This main element will now scroll independently */}
-      <main className="flex-grow p-4 sm:p-6 md:p-8 bg-gray-50 h-screen overflow-y-auto">
+      <main className="flex-grow bg-gray-50 h-screen overflow-y-auto">
         <Outlet />
       </main>
     </div>

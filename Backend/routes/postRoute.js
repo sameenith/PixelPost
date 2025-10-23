@@ -44,7 +44,7 @@ router.route("/:id/dislike").post(isAuthenticated, dislikePost);
 
 // Toggle bookmark on a post
 // POST /api/v1/post/:id/bookmark
-router.route("/:id/bookmark").post(isAuthenticated, bookmarkPost);
+router.route("/:id/bookmark").get(isAuthenticated, bookmarkPost);
 
 // ------------------- Comment Routes -------------------
 
