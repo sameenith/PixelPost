@@ -16,12 +16,12 @@ const PORT = process.env.PORT || 9000;
 const __dirname = path.resolve();
 console.log(__dirname);
 
-app.get("/", (_, res) => {
-  res.status(200).json({
-    message: "Welcome to InstaClone Backend",
-    success: true,
-  });
-});
+// app.get("/", (_, res) => {
+//   res.status(200).json({
+//     message: "Welcome to InstaClone Backend",
+//     success: true,
+//   });
+// });
 
 // Middleware
 app.use(express.json());
