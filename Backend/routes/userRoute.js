@@ -7,6 +7,7 @@ import {
   getProfile,
   getSuggestedUsers,
   followOrUnfollow,
+  searchUsers,
 } from "../controllers/userController.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import upload from "../controllers/multer.js";
@@ -23,4 +24,5 @@ router
 router.route("/suggested").get(isAuthenticated, getSuggestedUsers);
 router.route("/followOrUnfollow/:id").post(isAuthenticated, followOrUnfollow);
 
+router.route("/search").get(isAuthenticated, searchUsers);
 export default router;

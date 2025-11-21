@@ -343,3 +343,70 @@ export const followOrUnfollow = async (req, res) => {
     });
   }
 };
+
+export const searchUsers = async (req, res) => {
+  try {
+    const query = req.query;
+    console.log(query);
+
+    // if (!query) {
+    //   return res.status(400).json({
+    //     message: "query is required",
+    //     success: false,
+    //   });
+    // }
+
+    if (Object.keys(query).length === 0) {
+      return res.status(400).json({
+        message: "Query parameters are required for searching.",
+        success: false,
+      });
+    }
+
+    const { userName, email } = req.query;
+
+    //----it use AND contion that is too restrictive----//
+    // const queryObject = {};
+    // if (userName) {
+    //   queryObject.userName = { $regex: userName, $options: "i" };
+    // }
+    // if (email) {
+    //   queryObject.email = { $regex: email, $options: "i" };
+    // }
+
+    // const users = await User.find(queryObject).select(
+    //   "_id userName profilePicture"
+    // );
+
+    //----here we are using OR condition----//
+    const searchConditions = [];
+
+    if (userName) {
+      searchConditions.push({ userName: { $regex: userName, $options: "i" } });
+    }
+
+    if (email) {
+      searchConditions.push({ email: { $regex: email, $options: "i" } });
+    }
+    if (searchConditions.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "A search term (username or email) is required." });
+    }
+
+    const users = await User.find({
+      $or: searchConditions,
+    }).select("_id userName profilePicture");
+
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.log("Error in searchUser: ", error);
+    return res.status(500).json({
+      message: "An error occured on the server",
+      success: false,
+    });
+  }
+};
