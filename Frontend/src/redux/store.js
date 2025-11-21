@@ -39,7 +39,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        ignoredPaths: ["Socketio.socket"],
+        ignoredPaths: ["socketio.socket"],
         ignoredActionPaths: ["payload"],
       },
     }),

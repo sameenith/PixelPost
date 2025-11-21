@@ -16,20 +16,19 @@ const PORT = process.env.PORT || 9000;
 const __dirname = path.resolve();
 console.log(__dirname);
 
-// app.get("/", (_, res) => {
-//   res.status(200).json({
-//     message: "Welcome to InstaClone Backend",
-//     success: true,
-//   });
-// });
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+const ALLOWED_ORIGINS = [
+    process.env.URL,         // Production Render Domain
+    "http://localhost:5173"  // Local Dev Domain (Vite default)
+];
+
 const corsOptions = {
-  origin: process.env.URL,
+  origin: ALLOWED_ORIGINS,
   credentials: true,
 };
 app.use(cors(corsOptions));

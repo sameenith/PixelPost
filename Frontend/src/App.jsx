@@ -74,11 +74,15 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      const socketio = io("http://localhost:8000", {
+      const isProd = import.meta.env.MODE === "production";
+      const SOCKET_URL = isProd ? "/" : "http://localhost:8000";
+
+      const socketio = io(SOCKET_URL, {
         query: {
           userId: user._id,
         },
         transports: ["websocket"],
+        withCredentials: true,
       });
 
       dispatch(setSocket(socketio));
@@ -93,7 +97,10 @@ function App() {
       });
 
       return () => {
-        socketio.close();
+        if (socketio) {
+          socketio.close();
+        }
+        // socketio.close();
         dispatch(setSocket(null));
       };
     } else if (socket) {

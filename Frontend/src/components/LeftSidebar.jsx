@@ -48,7 +48,6 @@ const LeftSideBar = () => {
   const { user } = useSelector((store) => store.auth);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-
   // Placeholder for logout functionality
   const handleLogout = async () => {
     console.log("Logout clicked");
@@ -80,7 +79,7 @@ const LeftSideBar = () => {
         <nav className="flex-grow">
           <NavLink icon={Home} text="Home" to="/"></NavLink>
           <NavLink icon={Search} text="Search" to="/search"></NavLink>
-          <NavLink icon={Compass} text="Explore" to="/explore"></NavLink>
+          {/* <NavLink icon={Compass} text="Explore" to="/explore"></NavLink> */}
           <NavLink
             icon={MessageCircleCode}
             text="Messages"

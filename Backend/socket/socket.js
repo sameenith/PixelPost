@@ -5,11 +5,17 @@ import express from "express";
 const app = express();
 const server = http.createServer(app);
 
+const ALLOWED_ORIGINS = [
+    process.env.URL, // Production Render domain
+    "http://localhost:5173" // Local development domain
+];
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.URL,
+    origin: ALLOWED_ORIGINS,
     methods: ["GET", "POST"],
   },
+  transports: ['websocket'],
 });
 
 const userSocketMap = {}; // it stores userId -> socketId (we can fine online users from this)
